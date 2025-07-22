@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Reward System</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 380px;
+      margin: 30px auto;
+      background-color: #1a1a1a;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .stats, .buttons {
+      margin-top: 15px;
+    }
+
+    .stats p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .buttons button {
+      width: 100%;
+      margin: 6px 0;
+      padding: 12px;
+      font-size: 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .buttons button:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    #watch-ad { background: #FFD700; color: #000; }
+    #youtube-watch { background: #E53935; color: #fff; }
+    #auto-ads { background: #43A047; color: #fff; }
+    #stop-auto { background: #d32f2f; color: #fff; }
+    #withdraw-btn { background: linear-gradient(90deg, #FFD700, #4CAF50); color: #000; }
+
+    #withdraw-options {
+      display: none;
+      margin-top: 20px;
+      background: #222;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #payment-type-section {
+      margin-top: 10px;
+    }
+
+    #status {
+      margin-top: 10px;
+      color: #FFD700;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Auto Ads Rewards</h1>
+    <div class="stats">
+      <p>Watched Ads: <span id="ads-count">0</span></p>
+      <p>Earned Points: <span id="points">0.00</span></p>
+    </div>
+
+    <div class="buttons">
+      <button id="watch-ad">Watch Ad</button>
+      <button id="youtube-watch">🎬 Watch YouTube</button>
+      <button id="auto-ads">Start Auto Ads</button>
+      <button id="stop-auto" disabled>Stop Auto Ads</button>
+      <button id="withdraw-btn" onclick="toggleWithdraw()">Withdraw</button>
+    </div>
+
+    <div id="withdraw-options">
+      <label>Select Method</label>
+      <select id="payment-method" onchange="updatePaymentOptions()">
+        <option value="">-- Choose --</option>
+        <option value="Bkash">Bkash</option>
+        <option value="Nagad">Nagad</option>
+        <option value="Rocket">Rocket</option>
+      </select>
+
+      <div id="payment-type-section">
+        <input type="text" id="payment-number" placeholder="Enter Phone Number" />
+        <input type="number" id="withdraw-amount" placeholder="Enter Amount" min="5" />
+        <button onclick="submitWithdraw()">Confirm Withdraw</button>
+      </div>
+
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    let adsCount = 0;
+    let points = 0.00;
+    let autoAdInterval;
+
+    document.getElementById("watch-ad").onclick = function () {
+      adsCount++;
+      points += 0.5;
+      updateStats();
+    }
+
+    document.getElementById("youtube-watch").onclick = function () {
+      adsCount++;
+      points += 1;
+      updateStats();
+      alert("🎉 You earned 1 point from YouTube ad!");
+    }
+
+    document.getElementById("auto-ads").onclick = function () {
+      autoAdInterval = setInterval(() => {
+        adsCount++;
+        points += 0.5;
+        updateStats();
+      }, 3000);
+      this.disabled = true;
+      document.getElementById("stop-auto").disabled = false;
+    }
+
+    document.getElementById("stop-auto").onclick = function () {
+      clearInterval(autoAdInterval);
+      document.getElementById("auto-ads").disabled = false;
+      this.disabled = true;
+    }
+
+    function updateStats() {
+      document.getElementById("ads-count").textContent = adsCount;
+      document.getElementById("points").textContent = points.toFixed(2);
+    }
+
+    function toggleWithdraw() {
+      const section = document.getElementById("withdraw-options");
+      section.style.display = section.style.display === "block" ? "none" : "block";
+    }
+
+    function updatePaymentOptions() {
+      const method = document.getElementById("payment-method").value;
+      document.getElementById("payment-number").placeholder = `Enter ${method} Number`;
+    }
+
+    function submitWithdraw() {
+      const method = document.getElementById("payment-method").value;
+      const number = document.getElementById("payment-number").value;
+      const amount = parseFloat(document.getElementById("withdraw-amount").value);
+
+      if (!method || !number || !amount) {
+        document.getElementById("status").textContent = "Please fill all fields.";
+        return;
+      }
+
+      if (amount > points) {
+        document.getElementById("status").textContent = "Insufficient balance.";
+        return;
+      }
+
+      points -= amount;
+      updateStats();
+      document.getElementById("status").textContent = `✅ Withdraw request sent via ${method} to ${number}`;
+    }
+  </script>
+</body>
+</html>
